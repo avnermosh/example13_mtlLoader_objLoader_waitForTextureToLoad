@@ -60,7 +60,7 @@ class Example13 {
 
         mtlLoader.setPath( "./" );
 
-        let mtlFilename = 'test1.mtl';
+        let mtlFilename = 'test2.mtl';
         await mtlLoader.loadAsync( mtlFilename ).then( onLoad_mtlLoader ).catch( ( err ) => {
             console.log('In catch block');
             console.error('err', err);
@@ -79,15 +79,15 @@ class Example13 {
             objLoader.setMaterials( materials );
         
             console.log('objLoader.materials.materials', objLoader.materials.materials);
-            console.log('objLoader.materials.materials.test1', objLoader.materials.materials.test1);
-            if(objLoader.materials.materials.test1)
+            console.log('objLoader.materials.materials.test2', objLoader.materials.materials.test2);
+            if(objLoader.materials.materials.test2)
             {
-                console.log('objLoader.materials.materials.test1.map.image', objLoader.materials.materials.test1.map.image);
+                console.log('objLoader.materials.materials.test2.map.image', objLoader.materials.materials.test2.map.image);
             }
         
             objLoader.setPath( "./" );
 
-            let objFilename = 'test1.obj';
+            let objFilename = 'test2.obj';
             let objInstance = await objLoader.loadAsync(objFilename);
 
             onLoad_FileObj_objLoader(objInstance);
