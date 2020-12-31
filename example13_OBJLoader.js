@@ -778,7 +778,16 @@ var OBJLoader = ( function () {
                         // - from within MTLLoader.js - from MTLLoader.MaterialCreator::preload(), which passes an empty imageInfoVec to be filled (in createMaterial_)
                         // - from within OBJLoader.js (i.e. here) - from OBJLoader::parse(), which does NOT pass imageInfoVec, but this.materials[ materialName ] is expected to be defined
                         //   (because the material was preloaded), so we whould not have any problem...
-                        material = this.materials.create( sourceMaterial.name );
+
+                        console.log('doUseCreateWithAsync1', this.materials.doUseCreateWithAsync); 
+                        if(this.materials.doUseCreateWithAsync)
+                        {
+                            material = this.materials.createWithAsync( sourceMaterial.name );
+                        }
+                        else
+                        {
+                            material = this.materials.create( sourceMaterial.name );
+                        }
 
                         // mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
                         if ( isLine && material && ! ( material instanceof LineBasicMaterial ) ) {

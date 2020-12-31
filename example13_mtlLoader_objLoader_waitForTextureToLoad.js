@@ -1,7 +1,10 @@
 
 import {Scene as THREE_Scene,
-        PerspectiveCamera as THREE_PerspectiveCamera,
-        DirectionalLight as THREE_DirectionalLight,
+        OrthographicCamera as THREE_OrthographicCamera,
+        AmbientLight as THREE_AmbientLight,
+        LoadingManager as THREE_LoadingManager,
+        DoubleSide as THREE_DoubleSide,
+        Vector3 as THREE_Vector3,
         WebGLRenderer as THREE_WebGLRenderer
        } from './three.js/three.js-r120/build/three.module.js';
 
@@ -19,26 +22,48 @@ class Example13 {
 
         var scene = new THREE_Scene();
 
-        var camera = new THREE_PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-        camera.position.z = 250;
+        let width1 = 1000 / 2;
+        let height1 = 1000 / 2;
+        let left = -width1;
+        let right = width1;
+        let top = height1;
+        let bottom = -height1;
+        let near = 0.1;
+        let far = 100000;
+        var camera = new THREE_OrthographicCamera(left, right, top, bottom, near, far);
+        var camera3DtopDownPosition0 = new THREE_Vector3(643, 2000, 603);
+        camera.position.copy( camera3DtopDownPosition0 );
+        camera.zoom = 0.42;
+        camera.updateProjectionMatrix();
         camera.lookAt( scene.position );
+        camera.updateMatrixWorld();
 
-        var directionalLight = new THREE_DirectionalLight( 0xffeedd );
-        directionalLight.position.set( 0, 0, 1 ).normalize();
-        scene.add( directionalLight );
+        scene.add(camera);
+
+        let lightTopDown = new THREE_AmbientLight("#808080");
+        scene.add(lightTopDown);
+            
 
         // model
         var mesh = null;
 
-        var mtlLoader = new THREE_MTLLoader();
-        mtlLoader.setPath( "https://threejs.org/examples/models/obj/walt/" );
+        let loadingManager = new THREE_LoadingManager();
+        loadingManager.setURLModifier( ( url ) => {
+            let url0 = 'https://cdn.jsdelivr.net/gh/avnermosh/example13_mtlLoader_objLoader_waitForTextureToLoad' + '/' + url;
+            // let url0 = 'http://127.0.0.1:8080' + '/' + url;
+            return url0;
+        } );
+        
+        var mtlLoader = new THREE_MTLLoader(loadingManager);
+        mtlLoader.setMaterialOptions( {side: THREE_DoubleSide, needsUpdate: true} );
 
-        let validUrl = 'WaltHead.mtl';
+        mtlLoader.setPath( "./" );
 
-        await mtlLoader.loadAsync( validUrl ).then( onLoad_mtlLoader ).catch( ( err ) => {
+        let mtlFilename = 'test1.mtl';
+        await mtlLoader.loadAsync( mtlFilename ).then( onLoad_mtlLoader ).catch( ( err ) => {
             console.log('In catch block');
             console.error('err', err);
-            console.error('Failed to load the material file: ', url);
+            console.error('Failed to load the material file: ', mtlFilename);
             // rethrow
             throw new Error('Error from mtlLoader.loadAsync()');
 
@@ -49,23 +74,25 @@ class Example13 {
 
             await materials.preload();
 
-            var objLoader = new THREE_OBJLoader();
+            var objLoader = new THREE_OBJLoader(loadingManager);
             objLoader.setMaterials( materials );
         
-            // console.log('objLoader.materials.materials', objLoader.materials.materials);
-            console.log('objLoader.materials.materials[lambert2SG.001].map', objLoader.materials.materials['lambert2SG.001'].map);
+            console.log('objLoader.materials.materials', objLoader.materials.materials);
+            console.log('objLoader.materials.materials.test1', objLoader.materials.materials.test1);
+            if(objLoader.materials.materials.test1)
+            {
+                console.log('objLoader.materials.materials.test1.map.image', objLoader.materials.materials.test1.map.image);
+            }
         
-            objLoader.setPath( "https://threejs.org/examples/models/obj/walt/" );
+            objLoader.setPath( "./" );
 
-            let objInstance = await objLoader.loadAsync('WaltHead.obj');
-
-            console.log('objLoader.materials.materials[lambert2SG.001].map2', objLoader.materials.materials['lambert2SG.001'].map);
+            let objFilename = 'test1.obj';
+            let objInstance = await objLoader.loadAsync(objFilename);
 
             onLoad_FileObj_objLoader(objInstance);
 
             function onLoad_FileObj_objLoader( object ) {
                 mesh = object;
-                mesh.position.y = -50;
                 scene.add( mesh );
             };
         };
@@ -78,7 +105,6 @@ class Example13 {
 
         let doRenderViaSingleRender = true;
         // doRenderViaSingleRender = false;
-        
         if(doRenderViaSingleRender)
         {
             console.log('using renderer.render()');            

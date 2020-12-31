@@ -185,6 +185,9 @@ MTLLoader.MaterialCreator = function ( baseUrl, options ) {
 MTLLoader.MaterialCreator.prototype = {
 
     constructor: MTLLoader.MaterialCreator,
+    doUseCreateWithAsync: false,
+    // doUseCreateWithAsync: true,
+    
 
     crossOrigin: 'anonymous',
 
@@ -283,7 +286,15 @@ MTLLoader.MaterialCreator.prototype = {
     preload: async function () {
         for ( var mn in this.materialsInfo ) {
 
-            await this.create( mn );
+            console.log('doUseCreateWithAsync2', this.doUseCreateWithAsync); 
+            if(this.doUseCreateWithAsync)
+            {
+                let material1 = await this.createWithAsync( mn );
+            }
+            else
+            {
+                let material1 = await this.create( mn );
+            }
 
         }
 
@@ -295,21 +306,21 @@ MTLLoader.MaterialCreator.prototype = {
 
     },
 
-    getAsArray: function () {
+    // getAsArray: function () {
 
-        var index = 0;
+    //     var index = 0;
 
-        for ( var mn in this.materialsInfo ) {
+    //     for ( var mn in this.materialsInfo ) {
 
-            this.materialsArray[ index ] = this.create( mn );
-            this.nameLookup[ mn ] = index;
-            index ++;
+    //         this.materialsArray[ index ] = this.create( mn );
+    //         this.nameLookup[ mn ] = index;
+    //         index ++;
 
-        }
+    //     }
 
-        return this.materialsArray;
+    //     return this.materialsArray;
 
-    },
+    // },
 
     create: function ( materialName ) {
 
@@ -320,7 +331,17 @@ MTLLoader.MaterialCreator.prototype = {
         }
         
         return this.materials[ materialName ];
-        // return this.materials[ materialName ];
+    },
+
+    createWithAsync: async function ( materialName ) {
+
+        if ( this.materials[ materialName ] === undefined ) {
+
+            await this.createMaterial_( materialName );
+
+        }
+        
+        return this.materials[ materialName ];
     },
     
     createMaterial_: async function ( materialName ) {
@@ -400,7 +421,6 @@ MTLLoader.MaterialCreator.prototype = {
                 case 'map_kd':
 
                     // Diffuse texture map
-                    // await setMapForType( "map", value );
 	            await setMapForType( "map", value );
                     break;
 
@@ -536,6 +556,7 @@ MTLLoader.MaterialCreator.prototype = {
     },
 
     loadTexture: async function ( url, mapping, onLoad, onProgress, onError ) {
+        console.log('BEG loadTexture'); 
         
         var texture;
         var manager = ( this.manager !== undefined ) ? this.manager : DefaultLoadingManager;
