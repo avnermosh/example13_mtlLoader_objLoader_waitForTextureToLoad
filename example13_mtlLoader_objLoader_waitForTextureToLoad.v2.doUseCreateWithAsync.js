@@ -8,7 +8,7 @@ import {Scene as THREE_Scene,
         WebGLRenderer as THREE_WebGLRenderer
        } from './three.js/three.js-r120/build/three.module.js';
 
-import { MTLLoader as THREE_MTLLoader } from "./example13_MTLLoader.js";
+import { MTLLoader as THREE_MTLLoader } from "./example13_MTLLoader.doUseCreateWithAsync.js";
 import { OBJLoader as THREE_OBJLoader } from "./example13_OBJLoader.js";
 
 
@@ -41,7 +41,7 @@ class Example13 {
 
         scene.add(camera);
 
-        let lightTopDown = new THREE_AmbientLight("#808080");
+        let lightTopDown = new THREE_AmbientLight("0x404040");
         scene.add(lightTopDown);
             
 
@@ -60,7 +60,7 @@ class Example13 {
 
         mtlLoader.setPath( "./" );
 
-        let mtlFilename = 'test1.mtl';
+        let mtlFilename = 'test2.mtl';
         await mtlLoader.loadAsync( mtlFilename ).then( onLoad_mtlLoader ).catch( ( err ) => {
             console.log('In catch block');
             console.error('err', err);
@@ -79,15 +79,15 @@ class Example13 {
             objLoader.setMaterials( materials );
         
             console.log('objLoader.materials.materials', objLoader.materials.materials);
-            console.log('objLoader.materials.materials.test1', objLoader.materials.materials.test1);
-            if(objLoader.materials.materials.test1)
+            console.log('objLoader.materials.materials.test2', objLoader.materials.materials.test2);
+            if(objLoader.materials.materials.test2)
             {
-                console.log('objLoader.materials.materials.test1.map.image', objLoader.materials.materials.test1.map.image);
+                console.log('objLoader.materials.materials.test2.map.image', objLoader.materials.materials.test2.map.image);
             }
         
             objLoader.setPath( "./" );
 
-            let objFilename = 'test1.obj';
+            let objFilename = 'test2.obj';
             let objInstance = await objLoader.loadAsync(objFilename);
 
             onLoad_FileObj_objLoader(objInstance);
