@@ -41,7 +41,7 @@ class Example13 {
 
         scene.add(camera);
 
-        let lightTopDown = new THREE_AmbientLight("#808080");
+        let lightTopDown = new THREE_AmbientLight("0x404040");
         scene.add(lightTopDown);
             
 
