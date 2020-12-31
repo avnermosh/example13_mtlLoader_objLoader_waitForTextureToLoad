@@ -11,9 +11,6 @@ import {
     Vector2
 } from './three.js/three.js-r120/build/three.module.js';
 
-import { MLJ } from  "../mlj/MLJ.js";
-import { ImageInfo } from  "../mlj/core/ImageInfo.js";
-import "../mlj/util/Util.AssociativeArray.js";
 
 /**
  * Loads a Wavefront .mtl file specifying materials
@@ -284,20 +281,10 @@ MTLLoader.MaterialCreator.prototype = {
     },
 
     preload: async function () {
-        console.log('BEG MTLLoader::preload');
-        
-        // create an associative array: imageInfoVec
-        // populate imageInfoVec (inside create() ) with the images that the .mtl file references.
-        // Return imageInfoVec
-        let imageInfoVec = new MLJ.util.AssociativeArray();
+        for ( var mn in this.materialsInfo ) {
 
-        for ( var materialName in this.materialsInfo ) {
-
-            // this.create( mn );
-            let material1 = await this.create( materialName, imageInfoVec );
+            this.create( mn );
         }
-        return imageInfoVec;
-
     },
 
     getIndex: function ( materialName ) {
@@ -322,31 +309,21 @@ MTLLoader.MaterialCreator.prototype = {
 
     },
 
-    // MTLLoader.MaterialCreator::create() is called
-    // - from within MTLLoader.js - from (i.e. here) MTLLoader.MaterialCreator::preload(), which passes an empty imageInfoVec to be filled (in createMaterial_)
-    // - from within OBJLoader.js - from OBJLoader::parse(), which does NOT pass imageInfoVec, but this.materials[ materialName ] is expected to be defined
-    //   (because the material was preloaded), so we whould not have any problem...
-    create: function ( materialName, imageInfoVec ) {
+    create: function ( materialName ) {
         let material1 = undefined;
         if ( this.materials[ materialName ] === undefined ) {
-            // pass in imageInfoVec. It will be populated with the images that the .mtl file refers to
-            // console.log('imageInfoVec.toString()333', imageInfoVec.toString());
-            material1 = this.createMaterial_( materialName, imageInfoVec );
-            // console.log('imageInfoVec.toString()444', imageInfoVec.toString());
-            
+            material1 = this.createMaterial_( materialName );
         }
         else
         {
             material1 = this.materials[ materialName ];
         }
         
-        // console.log('material1', material1);
-        // console.log('material1.userData.imagesInfo.size()', material1.userData.imagesInfo.size()); 
         return material1;
         // return this.materials[ materialName ];
     },
     
-    createMaterial_: async function ( materialName, imageInfoVec ) {
+    createMaterial_: async function ( materialName ) {
 
         // Create material
         var scope = this;
@@ -519,46 +496,6 @@ MTLLoader.MaterialCreator.prototype = {
 
         }
 
-        if( imageFilenameArray.length !== imageOrientationArray.length )
-        {
-            console.error( 'The number of image file names  and image orientations differ. ' +
-                           'imageFilenameArray: ' + imageFilenameArray +
-                           ', imageOrientationArray: ' + imageOrientationArray );
-        }
-        else
-        {
-            params.userData.imagesInfo = new MLJ.util.AssociativeArray();
-
-            for (let i=0; i<imageFilenameArray.length; i++) {
-                let imageFilename = imageFilenameArray[i];
-                let imageOrientation = imageOrientationArray[i];
-                
-                if(materialName === "ground_1")
-                {
-                    // call the setMapForType function that loads the texture
-                    // only for images that relate to the plan map (i.e. xxx.structure.layerXX.mtl, indicated by material name "ground_1")
-                    // setMapForType( "map", imageFilename );
-                    await setMapForType( "map", imageFilename );
-                }
-
-                // console.log('imageFilename', imageFilename);
-
-                // remove the prefix "./" before the file name if it exists
-                // e.g. ./xxx -> xxx
-                const regex2 = /\.\//gi;
-                let imageFilename2 = imageFilename.replace(regex2, '');
-                // console.log('imageFilename:', imageFilename);
-                // console.log('imageFilename2:', imageFilename2);
-                
-                
-                let imageInfo = new ImageInfo({filename: imageFilename2});
-                params.userData.imagesInfo.set(imageFilename2, imageInfo);
-                // add imageInfo to imageInfoVec  
-                imageInfoVec.set(imageFilename2, imageInfo);
-            }             
-        }
-        // console.log('params.userData.imagesInfo', params.userData.imagesInfo);
-        
         this.materials[ materialName ] = new MeshPhongMaterial( params );
         return this.materials[ materialName ];
     },
