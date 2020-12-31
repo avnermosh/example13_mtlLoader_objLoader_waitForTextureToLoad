@@ -12,6 +12,7 @@ import { MTLLoader as THREE_MTLLoader } from "./example13_MTLLoader.js";
 import { OBJLoader as THREE_OBJLoader } from "./example13_OBJLoader.js";
 
 
+
 class Example13 {
     constructor(component){
         console.log('BEG Example13');
