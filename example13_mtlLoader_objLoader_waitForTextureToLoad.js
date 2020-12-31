@@ -14,7 +14,7 @@ class Example13 {
         console.log('BEG Example13');
     };
 
-    run = function () {
+    run = async function () {
         console.log('BEG run');
 
         var scene = new THREE_Scene();
@@ -35,19 +35,19 @@ class Example13 {
 
         let validUrl = 'WaltHead.mtl';
 
-        mtlLoader.loadAsync( validUrl ).then( onLoad_mtlLoader ).catch( ( err ) => {
+        await mtlLoader.loadAsync( validUrl ).then( onLoad_mtlLoader ).catch( ( err ) => {
             console.log('In catch block');
             console.error('err', err);
             console.error('Failed to load the material file: ', url);
             // rethrow
-            throw new Error('Error from MTLLoader::load()');
+            throw new Error('Error from mtlLoader.loadAsync()');
 
         });
 
 
-        function onLoad_mtlLoader( materials ) {
+        async function onLoad_mtlLoader( materials ) {
 
-            materials.preload();
+            await materials.preload();
 
             var objLoader = new THREE_OBJLoader();
             objLoader.setMaterials( materials );
@@ -56,12 +56,18 @@ class Example13 {
             console.log('objLoader.materials.materials[lambert2SG.001].map', objLoader.materials.materials['lambert2SG.001'].map);
         
             objLoader.setPath( "https://threejs.org/examples/models/obj/walt/" );
-            objLoader.load( 'WaltHead.obj', function ( object ) {
+
+            let objInstance = await objLoader.loadAsync('WaltHead.obj');
+
+            console.log('objLoader.materials.materials[lambert2SG.001].map2', objLoader.materials.materials['lambert2SG.001'].map);
+
+            onLoad_FileObj_objLoader(objInstance);
+
+            function onLoad_FileObj_objLoader( object ) {
                 mesh = object;
                 mesh.position.y = -50;
                 scene.add( mesh );
-            } );
-
+            };
         };
 
         var renderer = new THREE_WebGLRenderer();
@@ -71,15 +77,16 @@ class Example13 {
         document.body.appendChild( renderer.domElement );
 
         let doRenderViaSingleRender = true;
-        doRenderViaSingleRender = false;
+        // doRenderViaSingleRender = false;
+        
         if(doRenderViaSingleRender)
         {
-            // NOT ok - the head is NOT seen
+            console.log('using renderer.render()');            
             renderer.render( scene, camera );
         }
         else
         {
-            // ok - the head is seen
+            console.log('using animate()');            
             animate();
         }
 

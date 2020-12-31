@@ -283,8 +283,10 @@ MTLLoader.MaterialCreator.prototype = {
     preload: async function () {
         for ( var mn in this.materialsInfo ) {
 
-            this.create( mn );
+            await this.create( mn );
+
         }
+
     },
 
     getIndex: function ( materialName ) {
@@ -310,16 +312,14 @@ MTLLoader.MaterialCreator.prototype = {
     },
 
     create: function ( materialName ) {
-        let material1 = undefined;
+
         if ( this.materials[ materialName ] === undefined ) {
-            material1 = this.createMaterial_( materialName );
-        }
-        else
-        {
-            material1 = this.materials[ materialName ];
+
+            this.createMaterial_( materialName );
+
         }
         
-        return material1;
+        return this.materials[ materialName ];
         // return this.materials[ materialName ];
     },
     
@@ -329,9 +329,10 @@ MTLLoader.MaterialCreator.prototype = {
         var scope = this;
         var mat = this.materialsInfo[ materialName ];
         var params = {
+
             name: materialName,
-            side: this.side,
-            userData: {}
+            side: this.side
+
         };
         
         function resolveURL( baseUrl, url ) {
@@ -351,9 +352,6 @@ MTLLoader.MaterialCreator.prototype = {
             if ( params[ mapType ] ) return; // Keep the first encountered texture
 
             var texParams = scope.getTextureParams( value, params );
-            // console.log('scope.baseUrl', scope.baseUrl); 
-
-            // var map = scope.loadTexture( resolveURL( scope.baseUrl, texParams.url ) );
             var map = await scope.loadTexture( resolveURL( scope.baseUrl, texParams.url ) );
 
             map.repeat.copy( texParams.scale );
@@ -363,10 +361,8 @@ MTLLoader.MaterialCreator.prototype = {
             map.wrapT = scope.wrap;
 
             params[ mapType ] = map;
-        }
 
-        let imageFilenameArray = [];
-        let imageOrientationArray = [];
+        }
 
         for ( var prop in mat ) {
 
@@ -405,13 +401,7 @@ MTLLoader.MaterialCreator.prototype = {
 
                     // Diffuse texture map
                     // await setMapForType( "map", value );
-                    imageFilenameArray = value.split(" ");
-
-                    break;
-
-                case 'map_kd_orientation':
-                    // Image orientation (e.g. landscape, portrait)
-                    imageOrientationArray = value.split(" ");
+	            await setMapForType( "map", value );
                     break;
 
                 case 'map_ks':
@@ -498,6 +488,7 @@ MTLLoader.MaterialCreator.prototype = {
 
         this.materials[ materialName ] = new MeshPhongMaterial( params );
         return this.materials[ materialName ];
+
     },
 
     getTextureParams: function ( value, matParams ) {
@@ -545,7 +536,6 @@ MTLLoader.MaterialCreator.prototype = {
     },
 
     loadTexture: async function ( url, mapping, onLoad, onProgress, onError ) {
-        console.log('BEG loadTexture');
         
         var texture;
         var manager = ( this.manager !== undefined ) ? this.manager : DefaultLoadingManager;
@@ -558,8 +548,6 @@ MTLLoader.MaterialCreator.prototype = {
         }
 
         if ( loader.setCrossOrigin ) loader.setCrossOrigin( this.crossOrigin );
-
-        // texture = loader.load( url, onLoad, onProgress, onError );
         texture = await loader.loadAsync(url);
 
         if ( mapping !== undefined ) texture.mapping = mapping;
