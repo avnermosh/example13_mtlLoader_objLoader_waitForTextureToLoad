@@ -9,7 +9,7 @@ import {Scene as THREE_Scene,
        } from './three.js/three.js-r120/build/three.module.js';
 
 import { MTLLoader as THREE_MTLLoader } from "./example13_MTLLoader.js";
-import { OBJLoader as THREE_OBJLoader } from "./example13_OBJLoader.js";
+import { OBJLoader as THREE_OBJLoader } from "./example13_OBJLoader.v2.js";
 
 
 
